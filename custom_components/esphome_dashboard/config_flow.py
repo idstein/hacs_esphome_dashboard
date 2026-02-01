@@ -64,7 +64,12 @@ class ESPHomeDashboardConfigFlow(ConfigFlow, domain=DOMAIN):
 
         try:
             api = ESPHomeDashboardAPI(url, session)
-            await api.request("GET", "login")
+            # Check if we can reach the dashboard - login page returns HTML, not JSON
+            # Just verify we get a successful response (raise_for_status handles errors)
+            async with session.get(f"{url}/") as resp:
+                if resp.status != 200:
+                    errors["base"] = "cannot_connect"
+                    return errors
             devices_data = await api.get_devices()
             if "configured" not in devices_data:
                 errors["base"] = "invalid_dashboard"

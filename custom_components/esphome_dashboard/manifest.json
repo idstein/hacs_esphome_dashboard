@@ -9,5 +9,5 @@
   "issue_tracker": "https://github.com/idstein/hacs_esphome_dashboard/issues",
   "loggers": ["esphome-dashboard-api"],
   "requirements": ["esphome-dashboard-api==1.3.0"],
-  "version": "1.0.0"
+  "version": "1.0.1"
 }
