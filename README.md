@@ -55,7 +55,7 @@ After configuration, the integration will create:
 
 ## Requirements
 
-- Home Assistant 2024.1.0 or newer
+- Home Assistant 2026.1.1 or newer
 - ESPHome Dashboard accessible via HTTP/HTTPS
 - Python package: `esphome-dashboard-api==1.3.0` (installed automatically)
 
