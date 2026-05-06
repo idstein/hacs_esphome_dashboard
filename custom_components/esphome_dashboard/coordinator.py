@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .const import DEFAULT_SCAN_INTERVAL
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger("esphome_dashboard_custom")
 
 
 class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevice]]):
@@ -39,18 +39,22 @@ class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevi
     async def _async_update_data(self) -> dict[str, ConfiguredDevice]:
         """Fetch device data from the dashboard."""
         try:
+            _LOGGER.error("FETCHING DASHBOARD DATA from %s", self.api.url)
             devices_data = await self.api.get_devices()
             configured_devices: list[ConfiguredDevice] = devices_data.get(
                 "configured", []
             )
 
+            _LOGGER.error("RECEIVED %d devices", len(configured_devices))
             # Return devices indexed by their name
             return {device["name"]: device for device in configured_devices}
         except aiohttp.ClientResponseError as err:
+            _LOGGER.error("HTTP ERROR: %s", err)
             if err.status in (401, 403):
                 raise ConfigEntryAuthFailed(
                     "Authentication failed. Please update your credentials."
                 ) from err
             raise UpdateFailed(f"Error communicating with dashboard: {err}") from err
         except Exception as err:
+            _LOGGER.error("GENERAL ERROR: %s", err)
             raise UpdateFailed(f"Error communicating with dashboard: {err}") from err
