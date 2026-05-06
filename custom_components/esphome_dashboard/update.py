@@ -72,7 +72,7 @@ def _find_esphome_entry_data(
         entry_data: RuntimeEntryData = entry.runtime_data
         if not entry_data.device_info:
             continue
-        if _normalize_name(entry_data.device_info.name) == normalized_target:
+        if _normalize_name(entry_data.device_info.name) == normalized_target or _normalize_name(entry.title) == normalized_target:
             return entry_data
     return None
 
