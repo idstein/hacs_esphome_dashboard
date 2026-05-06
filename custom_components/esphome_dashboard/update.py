@@ -365,6 +365,10 @@ class ESPHomeDashboardUpdateEntity(
     def is_online(self) -> bool:
         """Return if the device is currently online."""
         if not self._esphome_entry_data:
+            self._esphome_entry_data = _find_esphome_entry_data(
+                self.hass, self._device_name
+            )
+        if not self._esphome_entry_data:
             return False
         return self._esphome_entry_data.available
 
