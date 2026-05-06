@@ -378,6 +378,17 @@ class ESPHomeDashboardUpdateEntity(
             return False
         return self._esphome_entry_data.available
 
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return extra state attributes."""
+        device_data = self.coordinator.data.get(self._device_name, {})
+        status = device_data.get("status")
+        return {
+            "dashboard_status": status,
+            "dashboard_comment": device_data.get("comment"),
+            "reinstall_useful": status == "STALE",
+        }
+
     async def async_install(
         self, version: str | None, backup: bool, **kwargs: Any
     ) -> None:
