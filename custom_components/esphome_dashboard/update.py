@@ -17,7 +17,7 @@ from homeassistant.components.update import (
     UpdateEntityFeature,
 )
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.const import ATTR_CONFIGURATION, CONF_URL
+from homeassistant.const import  CONF_URL
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import device_registry as dr
@@ -253,7 +253,7 @@ class ESPHomeDashboardUpdateEntity(
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return attributes."""
         return {
-            ATTR_CONFIGURATION: self._configuration,
+            "configuration": self._configuration,
             "dashboard_status": self._dashboard_status,
             "dashboard_comment": self._dashboard_comment,
             "reinstall_useful": self.reinstall_useful,
