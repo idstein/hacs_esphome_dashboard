@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from aiohttp import ClientSession
 
-from .coordinator import ESPHomeDashboardCoordinator
+from homeassistant.config_entries import ConfigEntry
 
+if TYPE_CHECKING:
+    from .coordinator import ESPHomeDashboardCoordinator
 
 @dataclass
 class ESPHomeDashboardRuntimeData:
@@ -15,3 +18,5 @@ class ESPHomeDashboardRuntimeData:
 
     coordinator: ESPHomeDashboardCoordinator
     session: ClientSession
+
+ESPHomeDashboardConfigEntry = ConfigEntry[ESPHomeDashboardRuntimeData]
