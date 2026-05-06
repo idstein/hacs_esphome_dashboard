@@ -6,7 +6,7 @@ import logging
 
 from esphome_dashboard_api import ESPHomeDashboardAPI
 
-from homeassistant.helpers import aiohttp_client
+import homeassistant.helpers.aiohttp_client as aiohttp_client
 from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
