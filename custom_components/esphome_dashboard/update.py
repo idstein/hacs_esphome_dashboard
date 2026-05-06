@@ -47,8 +47,6 @@ def _find_esphome_device_mac(hass: HomeAssistant, device_name: str) -> str | Non
             for conn_type, conn_id in device.connections:
                 if conn_type == CONNECTION_NETWORK_MAC:
                     return conn_id
-    _LOGGER.info("NO MATCH for device=%s", device_name)
-    _LOGGER.info("NO MATCH for device=%s", device_name)
     return None
 
 
@@ -67,14 +65,10 @@ def _find_esphome_entry_data(
         entry_data: RuntimeEntryData = entry.runtime_data
         if entry_data.device_info and entry_data.device_info.name == device_name:
             return entry_data
-    _LOGGER.info("NO MATCH for device=%s", device_name)
-    _LOGGER.info("NO MATCH for device=%s", device_name)
     return None
 
 
 async def async_setup_entry(
-    _LOGGER.info("Setting up ESPHome Dashboard update entities")
-
     hass: HomeAssistant,
     entry: ESPHomeDashboardConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
@@ -212,9 +206,7 @@ class ESPHomeDashboardUpdateEntity(
         except (TimeoutError, OSError, AttributeError):
             # AttributeError can occur if zeroconf is not properly initialized
             _LOGGER.debug("Failed to discover port for %s via mDNS", self._device_name)
-        _LOGGER.info("NO MATCH for device=%s", device_name)
-    _LOGGER.info("NO MATCH for device=%s", device_name)
-    return None
+        return None
 
     async def _async_query_device_version(self, address: str) -> str | None:
         """Query device version directly via native API.
@@ -241,9 +233,7 @@ class ESPHomeDashboardUpdateEntity(
             _LOGGER.debug(
                 "Direct query failed for %s, using dashboard version", self._device_name
             )
-            _LOGGER.info("NO MATCH for device=%s", device_name)
-    _LOGGER.info("NO MATCH for device=%s", device_name)
-    return None
+            return None
         else:
             return device_info.esphome_version
         finally:
@@ -353,9 +343,7 @@ class ESPHomeDashboardUpdateEntity(
         installed = self.installed_version
         latest = self.latest_version
         if not latest:
-            _LOGGER.info("NO MATCH for device=%s", device_name)
-    _LOGGER.info("NO MATCH for device=%s", device_name)
-    return None
+            return None
 
         notes = f"## ESPHome {latest}\n\n"
         if installed and installed != latest:
