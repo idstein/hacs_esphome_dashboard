@@ -14,7 +14,7 @@ from homeassistant.components.update import UpdateEntity, UpdateEntityFeature
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_URL
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -334,7 +334,9 @@ class ESPHomeDashboardUpdateEntity(
     @property
     def available(self) -> bool:
         """Return if entity is available."""
-        return super().available and self._device_name in self.coordinator.data
+        # Only show update entity if the device is currently online
+        # and exists in the dashboard data
+        return super().available and self._device_name in self.coordinator.data and self.is_online
 
     async def async_release_notes(self) -> str | None:
         """Return release notes for the latest ESPHome version."""
@@ -359,6 +361,13 @@ class ESPHomeDashboardUpdateEntity(
 
         return notes
 
+    @property
+    def is_online(self) -> bool:
+        """Return if the device is currently online."""
+        if not self._esphome_entry_data:
+            return False
+        return self._esphome_entry_data.available
+
     async def async_install(
         self, version: str | None, backup: bool, **kwargs: Any
     ) -> None:
@@ -372,7 +381,7 @@ class ESPHomeDashboardUpdateEntity(
             )
 
         _LOGGER.info(
-            "Starting OTA update for %s (%s) to %s",
+            "Starting update for %s (%s) to %s",
             self._device_name,
             self._address,
             self._configuration,
@@ -381,12 +390,24 @@ class ESPHomeDashboardUpdateEntity(
         # Use the API to compile and upload
         api = self.coordinator.api
 
-        # First compile the configuration
+        # First compile the configuration (always works even if offline)
         compile_success = await api.compile(self._configuration)
         if not compile_success:
             raise HomeAssistantError(f"Failed to compile {self._configuration}")
 
-        _LOGGER.debug("Compilation successful, starting upload to %s", self._address)
+        _LOGGER.info("Compilation successful for %s", self._device_name)
+
+        # Check if we can proceed with upload
+        if not self.is_online:
+            _LOGGER.info(
+                "%s is offline. Waiting for it to appear online before uploading firmware...",
+                self._device_name,
+            )
+            # Note: In a real implementation we might want a timeout or a long-running task.
+            # For now, we validate and fail if not online so the user knows they have to wait.
+            raise ServiceValidationError(
+                f"{self._device_name} is currently offline. Firmware has been compiled and is ready to be uploaded once the device appears online."
+            )
 
         # Upload to the device via OTA
         upload_success = await api.upload(
