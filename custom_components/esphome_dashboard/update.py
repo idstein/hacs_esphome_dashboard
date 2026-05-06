@@ -32,13 +32,10 @@ from .coordinator import ESPHomeDashboardCoordinator
 if TYPE_CHECKING:
     from homeassistant.components.esphome import RuntimeEntryData
 
-_LOGGER = logging.getLogger("esphome_dashboard_custom")
+_LOGGER = logging.getLogger(__name__)
 
 # ESPHome mDNS service type for port discovery
 ESPHOME_SERVICE_TYPE = "_esphomelib._tcp.local."
-
-# All entities share a DataUpdateCoordinator, so no parallel updates needed
-PARALLEL_UPDATES = 0
 
 
 def _normalize_name(name: str) -> str:
@@ -51,10 +48,8 @@ def _find_esphome_device_mac(hass: HomeAssistant, device_name: str) -> str | Non
     dev_reg = dr.async_get(hass)
     normalized_target = _normalize_name(device_name)
 
-    # Search for device by name
     for device in dev_reg.devices.values():
         if device.name and _normalize_name(device.name) == normalized_target:
-            # Check if this device has a MAC connection (from ESPHome integration)
             for conn_type, conn_id in device.connections:
                 if conn_type == dr.CONNECTION_NETWORK_MAC:
                     return conn_id
@@ -73,9 +68,7 @@ def _find_esphome_entry_data(
         if not entry_data or not entry_data.device_info:
             continue
         if _normalize_name(entry_data.device_info.name) == normalized_target or _normalize_name(entry.title) == normalized_target:
-            _LOGGER.error("MATCH FOUND for %s: %s", device_name, entry.title)
             return entry_data
-    _LOGGER.error("NO MATCH found for %s", device_name)
     return None
 
 
@@ -91,12 +84,7 @@ async def async_setup_entry(
     def async_add_update_entities() -> None:
         """Add update entities for devices."""
         entities: list[ESPHomeDashboardUpdateEntity] = []
-        # Entities are managed by coordinator data
         for device_name, device_data in coordinator.data.items():
-            # Check if entity already exists
-            unique_id = f"{entry.entry_id}_{device_name}"
-            # This is handled by HA's entity platform, but we can log it
-            _LOGGER.error("CREATING ENTITY for %s", device_name)
             mac_address = _find_esphome_device_mac(hass, device_name)
             entities.append(
                 ESPHomeDashboardUpdateEntity(
@@ -107,7 +95,6 @@ async def async_setup_entry(
         if entities:
             async_add_entities(entities)
 
-    # Initial add
     async_add_update_entities()
 
 
@@ -137,7 +124,6 @@ class ESPHomeDashboardUpdateEntity(
         self._device_name = device_name
         self._attr_unique_id = f"{entry_id}_{device_name}"
 
-        # Store configuration metadata
         self._configuration = device_data.get("configuration", f"{device_name}.yaml")
         self._address: str | None = None
         self._dashboard_status: str | None = None
@@ -145,7 +131,6 @@ class ESPHomeDashboardUpdateEntity(
         self._dashboard_deployed_version: str | None = None
         self._raw_latest_version: str | None = None
 
-        # Version tracking
         self._esphome_entry_data: RuntimeEntryData | None = None
         self._cached_device_version: str | None = None
         self._esphome_unsubscribe: CALLBACK_TYPE | None = None
@@ -278,7 +263,7 @@ class ESPHomeDashboardUpdateEntity(
         if not latest: return None
         notes = f"## ESPHome {latest}\n\n"
         if self.reinstall_useful:
-            notes += "**Warning:** YAML configuration has changed. A reinstall is recommended.\n\n"
+            notes += "**Recommendation:** The YAML configuration has changed since the last build. A reinstall is recommended even if the version matches.\n\n"
         return notes
 
     async def async_install(self, version: str | None, backup: bool, **kwargs: Any) -> None:
