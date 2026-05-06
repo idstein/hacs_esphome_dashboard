@@ -27,7 +27,7 @@ from .coordinator import ESPHomeDashboardCoordinator
 if TYPE_CHECKING:
     from homeassistant.components.esphome import RuntimeEntryData
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger("esphome_dashboard_custom")
 
 # ESPHome mDNS service type for port discovery
 ESPHOME_SERVICE_TYPE = "_esphomelib._tcp.local."
@@ -134,6 +134,8 @@ class ESPHomeDashboardUpdateEntity(
         # Store configuration filename and address for OTA updates
         self._configuration = device_data.get("configuration", f"{device_name}.yaml")
         self._address = device_data.get("address")
+        self._dashboard_status = device_data.get("status")
+        self._dashboard_comment = device_data.get("comment")
 
         # Version tracking - prefer esphome integration version over dashboard
         self._esphome_entry_data: RuntimeEntryData | None = None
@@ -162,6 +164,7 @@ class ESPHomeDashboardUpdateEntity(
             )
 
         self._update_attrs(device_data)
+        _LOGGER.error("ENTITY INIT: %s", self._device_name)
 
     async def async_added_to_hass(self) -> None:
         """Handle entity added to Home Assistant."""
@@ -282,6 +285,7 @@ class ESPHomeDashboardUpdateEntity(
         if self._device_name in self.coordinator.data:
             device_data = self.coordinator.data[self._device_name]
             self._update_attrs(device_data)
+        _LOGGER.error("ENTITY INIT: %s", self._device_name)
         else:
             # Device was removed from dashboard
             self._attr_available = False
@@ -304,6 +308,8 @@ class ESPHomeDashboardUpdateEntity(
 
         # Store address for OTA updates
         self._address = device_data.get("address")
+        self._dashboard_status = device_data.get("status")
+        self._dashboard_comment = device_data.get("comment")
 
         # Enable install feature if device has an address for OTA
         if self._address:

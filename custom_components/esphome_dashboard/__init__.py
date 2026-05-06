@@ -24,6 +24,12 @@ type ESPHomeDashboardConfigEntry = ConfigEntry[ESPHomeDashboardRuntimeData]
 
 
 async def async_setup_entry(
+    _LOGGER.error("ESPHOME_DASHBOARD: async_setup_entry called")
+
+    _LOGGER.error("ESPHOME_DASHBOARD: async_setup_entry called")
+
+    _LOGGER.error("ESPHOME_DASHBOARD: async_setup_entry called")
+
     hass: HomeAssistant, entry: ESPHomeDashboardConfigEntry
 ) -> bool:
     """Set up ESPHome Dashboard from a config entry."""
