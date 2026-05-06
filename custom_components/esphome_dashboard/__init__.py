@@ -1,35 +1,30 @@
-"""Support for ESPHome Dashboard."""
+"""The ESPHome Dashboard integration."""
 
 from __future__ import annotations
 
 import logging
 
-import aiohttp
 from esphome_dashboard_api import ESPHomeDashboardAPI
 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.components import aiohttp_client
 from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import aiohttp_client
+from homeassistant.helpers.typing import ConfigType
 
-from .const import DOMAIN as DOMAIN
 from .coordinator import ESPHomeDashboardCoordinator
-from .models import ESPHomeDashboardRuntimeData
+from .models import ESPHomeDashboardConfigEntry, ESPHomeDashboardRuntimeData
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.UPDATE]
 
-type ESPHomeDashboardConfigEntry = ConfigEntry[ESPHomeDashboardRuntimeData]
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Set up the ESPHome Dashboard integration."""
+    return True
 
 
 async def async_setup_entry(
-    _LOGGER.error("ESPHOME_DASHBOARD: async_setup_entry called")
-
-    _LOGGER.error("ESPHOME_DASHBOARD: async_setup_entry called")
-
-    _LOGGER.error("ESPHOME_DASHBOARD: async_setup_entry called")
-
     hass: HomeAssistant, entry: ESPHomeDashboardConfigEntry
 ) -> bool:
     """Set up ESPHome Dashboard from a config entry."""
@@ -37,12 +32,12 @@ async def async_setup_entry(
     username = entry.data.get(CONF_USERNAME)
     password = entry.data.get(CONF_PASSWORD)
 
-    # Create session with authentication if credentials are provided
-    auth = aiohttp.BasicAuth(username, password) if username and password else None
-    session = aiohttp_client.async_create_clientsession(
-        hass, auth=auth, raise_for_status=True
-    )
-    api = ESPHomeDashboardAPI(url, session)
+    auth = None
+    if username and password:
+        auth = aiohttp_client.helpers.BasicAuth(username, password)
+
+    session = aiohttp_client.async_get_clientsession(hass)
+    api = ESPHomeDashboardAPI(url, session, auth=auth)
 
     coordinator = ESPHomeDashboardCoordinator(hass, api, entry)
 
@@ -63,10 +58,4 @@ async def async_unload_entry(
     hass: HomeAssistant, entry: ESPHomeDashboardConfigEntry
 ) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-
-    if unload_ok:
-        # Close the aiohttp session to prevent resource leaks
-        await entry.runtime_data.session.close()
-
-    return unload_ok
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

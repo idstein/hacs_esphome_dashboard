@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .const import DEFAULT_SCAN_INTERVAL
 
-_LOGGER = logging.getLogger("esphome_dashboard_custom")
+_LOGGER = logging.getLogger(__name__)
 
 
 class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevice]]):
@@ -45,7 +45,6 @@ class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevi
             )
 
             # Return devices indexed by their name
-            _LOGGER.error("DASHBOARD DATA: %s", configured_devices)
             return {device["name"]: device for device in configured_devices}
         except aiohttp.ClientResponseError as err:
             if err.status in (401, 403):
