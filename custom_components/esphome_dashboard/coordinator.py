@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .const import DEFAULT_SCAN_INTERVAL
 
-_LOGGER = logging.getLogger("esphome_dashboard_custom")
+_LOGGER = logging.getLogger("homeassistant.components.esphome_dashboard")
 
 
 class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevice]]):

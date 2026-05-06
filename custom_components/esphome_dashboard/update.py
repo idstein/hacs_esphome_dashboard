@@ -67,7 +67,9 @@ def _find_esphome_entry_data(
         entry_data: RuntimeEntryData = entry.runtime_data
         if not entry_data or not entry_data.device_info:
             continue
+        _LOGGER.warning("COMPARE: dashboard=%s device=%s title=%s", normalized_target, _normalize_name(entry_data.device_info.name), _normalize_name(entry.title))
         if _normalize_name(entry_data.device_info.name) == normalized_target or _normalize_name(entry.title) == normalized_target:
+            _LOGGER.warning("MATCH FOUND for %s", device_name)
             return entry_data
     return None
 
@@ -233,7 +235,7 @@ class ESPHomeDashboardUpdateEntity(
     @property
     def available(self) -> bool:
         """Only available if online."""
-        return super().available and self._device_name in self.coordinator.data and self.is_online
+        return super().available and self._device_name in self.coordinator.data 
 
     @property
     def is_online(self) -> bool:

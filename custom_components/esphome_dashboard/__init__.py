@@ -34,14 +34,13 @@ async def async_setup_entry(
     if username and password:
         auth = aiohttp.BasicAuth(username, password)
 
-    session = aiohttp_client.async_get_clientsession(hass)
-    api = ESPHomeDashboardAPI(url, session, auth=auth)
+    session = aiohttp_client.async_create_clientsession(hass, auth=auth)
+    api = ESPHomeDashboardAPI(url, session)
 
     coordinator = ESPHomeDashboardCoordinator(hass, api, entry)
 
     await coordinator.async_config_entry_first_refresh()
 
-    # Store both coordinator and session for proper cleanup
     entry.runtime_data = ESPHomeDashboardRuntimeData(
         coordinator=coordinator,
         session=session,
@@ -55,4 +54,7 @@ async def async_unload_entry(
     hass: HomeAssistant, entry: ESPHomeDashboardConfigEntry
 ) -> bool:
     """Unload a config entry."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        await entry.runtime_data.session.close()
+    return unload_ok
