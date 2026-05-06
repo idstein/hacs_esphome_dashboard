@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import logging
+import aiohttp
 
 from esphome_dashboard_api import ESPHomeDashboardAPI
 
-import homeassistant.helpers.aiohttp_client as aiohttp_client
+from homeassistant.helpers import aiohttp_client
 from homeassistant.const import CONF_PASSWORD, CONF_URL, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
@@ -18,11 +19,8 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.UPDATE]
 
-
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the ESPHome Dashboard integration."""
     return True
-
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ESPHomeDashboardConfigEntry
@@ -34,7 +32,7 @@ async def async_setup_entry(
 
     auth = None
     if username and password:
-        auth = aiohttp_client.helpers.BasicAuth(username, password)
+        auth = aiohttp.BasicAuth(username, password)
 
     session = aiohttp_client.async_get_clientsession(hass)
     api = ESPHomeDashboardAPI(url, session, auth=auth)
@@ -52,7 +50,6 @@ async def async_setup_entry(
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
-
 
 async def async_unload_entry(
     hass: HomeAssistant, entry: ESPHomeDashboardConfigEntry
