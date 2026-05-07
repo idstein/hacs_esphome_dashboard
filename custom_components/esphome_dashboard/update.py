@@ -208,7 +208,6 @@ class ESPHomeDashboardUpdateEntity(
         
         if self._device_name in self.coordinator.data:
             self._update_attrs(self.coordinator.data[self._device_name])
-        _LOGGER.error("DEBUG: %s availability check: in_data=%s is_online=%s", self._device_name, self._device_name in self.coordinator.data, self.is_online)
         else:
             self._attr_available = False
         super()._handle_coordinator_update()
@@ -237,11 +236,7 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def latest_version(self) -> str | None:
-        """Return latest version.
-        
-        If status is STALE, we append a suffix to force it to differ from 
-        the numeric installed_version, triggering the Update button.
-        """
+        """Return latest version."""
         version = self._raw_latest_version or self._dashboard_deployed_version
         if version and self.reinstall_useful:
             return f"{version} (stale)"
