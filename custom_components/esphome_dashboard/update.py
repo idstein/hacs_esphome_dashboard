@@ -231,16 +231,20 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def latest_version(self) -> str | None:
-        """Return latest with stale marker."""
+        """Return latest version.
+        
+        If status is STALE, we append a suffix to force it to differ from 
+        the numeric installed_version, triggering the Update button.
+        """
         version = self._raw_latest_version or self._dashboard_deployed_version
         if version and self.reinstall_useful:
-            return f"{version} [STALE]"
+            return f"{version} (stale)"
         return version
 
     @property
     def available(self) -> bool:
-        """Only available if in coordinator data."""
-        return super().available and self._device_name in self.coordinator.data
+        """Only available if in coordinator data AND device is online."""
+        return super().available and self._device_name in self.coordinator.data and self.is_online
 
     @property
     def is_online(self) -> bool:
