@@ -165,10 +165,15 @@ class ESPHomeDashboardUpdateEntity(
         self._esphome_entry_data = _find_esphome_entry_data(self.hass, self._device_name)
         if self._esphome_entry_data:
             self._esphome_unsubscribe = self._esphome_entry_data.async_subscribe_device_updated(
-                self.async_write_ha_state
+                self._handle_esphome_update
             )
         elif self._address:
             self.hass.async_create_task(self._async_fetch_device_version())
+
+    @callback
+    def _handle_esphome_update(self) -> None:
+        """Handle esphome device update."""
+        self.async_write_ha_state()
 
     async def _async_fetch_device_version(self) -> None:
         """Fetch device version directly."""
@@ -244,7 +249,9 @@ class ESPHomeDashboardUpdateEntity(
     @property
     def available(self) -> bool:
         """Only available if in coordinator data AND device is online."""
-        return super().available and self._device_name in self.coordinator.data and self.is_online
+        if self._device_name not in self.coordinator.data:
+            return False
+        return self.is_online
 
     @property
     def is_online(self) -> bool:
