@@ -34,11 +34,12 @@ async def async_setup_entry(
     if username and password:
         auth = aiohttp.BasicAuth(username, password)
 
-    session = aiohttp_client.async_get_clientsession(hass)
+    # Note: async_get_clientsession does not support 'auth' directly
+    # We must use async_create_clientsession or manage auth in the API class
+    session = aiohttp_client.async_create_clientsession(hass, auth=auth)
     api = ESPHomeDashboardAPI(url, session)
 
     coordinator = ESPHomeDashboardCoordinator(hass, api, entry)
-
     await coordinator.async_config_entry_first_refresh()
 
     entry.runtime_data = ESPHomeDashboardRuntimeData(
@@ -47,7 +48,6 @@ async def async_setup_entry(
     )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
     return True
 
 async def async_unload_entry(

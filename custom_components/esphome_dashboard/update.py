@@ -235,7 +235,8 @@ class ESPHomeDashboardUpdateEntity(
     @property
     def available(self) -> bool:
         """Only available if online."""
-        return super().available and self._device_name in self.coordinator.data 
+        _LOGGER.error("AVAIL: name=%s keys=%s", self._device_name, list(self.coordinator.data.keys()))
+        return super().available and self._device_name in self.coordinator.data and self.is_online 
 
     @property
     def is_online(self) -> bool:
