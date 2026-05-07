@@ -65,7 +65,9 @@ def _find_esphome_entry_data(
         if entry.state != ConfigEntryState.LOADED:
             continue
         entry_data: RuntimeEntryData = entry.runtime_data
+        _LOGGER.error("DEBUG: checking entry=%s state=%s has_data=%s", entry.title, entry.state, entry.runtime_data is not None)
         if not entry_data or not entry_data.device_info:
+        _LOGGER.error("DEBUG: entry_data=%s has_device_info=%s", entry_data, entry_data.device_info is not None if entry_data else False)
             continue
         _LOGGER.error("DEBUG: entry title=%s normalized=%s target=%s", entry.title, _normalize_name(entry.title), normalized_target)
         if _normalize_name(entry_data.device_info.name) == normalized_target or _normalize_name(entry.title) == normalized_target:
