@@ -49,6 +49,7 @@ class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevi
             )
 
             _LOGGER.error("RECEIVED %d devices", len(configured_devices))
+            _LOGGER.error("DEBUG: device names=%s", list(device["name"] for device in configured_devices))
             # Return devices indexed by their name
             return {device["name"]: device for device in configured_devices}
         except aiohttp.ClientResponseError as err:
