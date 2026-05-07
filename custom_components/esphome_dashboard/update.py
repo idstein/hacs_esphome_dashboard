@@ -64,17 +64,15 @@ def _find_esphome_entry_data(
     for entry in hass.config_entries.async_entries("esphome"):
         if entry.state != ConfigEntryState.LOADED:
             continue
-        # In modern HA, runtime_data is an attribute
+        
         entry_data = getattr(entry, "runtime_data", None)
         if not entry_data:
             continue
         
-        # Check device info if available
         device_info = getattr(entry_data, "device_info", None)
         if device_info and _normalize_name(device_info.name) == normalized_target:
             return entry_data
         
-        # Fallback to entry title
         if _normalize_name(entry.title) == normalized_target:
             return entry_data
             
@@ -208,7 +206,6 @@ class ESPHomeDashboardUpdateEntity(
         else:
             self._attr_available = False
         super()._handle_coordinator_update()
-        if self._device_name == "dehumidifier01": _LOGGER.error("DEBUG: dehumidifier01 data=%s", device_data)
 
     def _update_attrs(self, device_data: ConfiguredDevice) -> None:
         """Update attrs."""
@@ -242,7 +239,7 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def available(self) -> bool:
-        """Only available if in coordinator data and dashboard says it is configured."""
+        """Only available if in coordinator data."""
         return super().available and self._device_name in self.coordinator.data
 
     @property
