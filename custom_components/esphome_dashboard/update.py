@@ -208,6 +208,7 @@ class ESPHomeDashboardUpdateEntity(
         else:
             self._attr_available = False
         super()._handle_coordinator_update()
+        if self._device_name == "dehumidifier01": _LOGGER.error("DEBUG: dehumidifier01 data=%s", device_data)
 
     def _update_attrs(self, device_data: ConfiguredDevice) -> None:
         """Update attrs."""
