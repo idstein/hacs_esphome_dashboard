@@ -64,13 +64,20 @@ def _find_esphome_entry_data(
     for entry in hass.config_entries.async_entries("esphome"):
         if entry.state != ConfigEntryState.LOADED:
             continue
-        entry_data: RuntimeEntryData = entry.runtime_data
-        if not entry_data or not entry_data.device_info:
+        # In modern HA, runtime_data is an attribute
+        entry_data = getattr(entry, "runtime_data", None)
+        if not entry_data:
             continue
-        _LOGGER.warning("COMPARE: dashboard=%s device=%s title=%s", normalized_target, _normalize_name(entry_data.device_info.name), _normalize_name(entry.title))
-        if _normalize_name(entry_data.device_info.name) == normalized_target or _normalize_name(entry.title) == normalized_target:
-            _LOGGER.warning("MATCH FOUND for %s", device_name)
+        
+        # Check device info if available
+        device_info = getattr(entry_data, "device_info", None)
+        if device_info and _normalize_name(device_info.name) == normalized_target:
             return entry_data
+        
+        # Fallback to entry title
+        if _normalize_name(entry.title) == normalized_target:
+            return entry_data
+            
     return None
 
 
@@ -234,9 +241,8 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def available(self) -> bool:
-        """Only available if online."""
-        _LOGGER.error("AVAIL: name=%s keys=%s", self._device_name, list(self.coordinator.data.keys()))
-        return super().available and self._device_name in self.coordinator.data and self.is_online 
+        """Only available if in coordinator data and dashboard says it is configured."""
+        return super().available and self._device_name in self.coordinator.data
 
     @property
     def is_online(self) -> bool:
