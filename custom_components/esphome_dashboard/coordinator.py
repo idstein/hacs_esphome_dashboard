@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .const import DEFAULT_SCAN_INTERVAL
 
-_LOGGER = logging.getLogger("homeassistant.components.esphome_dashboard")
+_LOGGER = logging.getLogger(__name__)
 
 
 class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevice]]):
@@ -41,6 +41,9 @@ class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevi
         try:
             _LOGGER.error("FETCHING DASHBOARD DATA from %s", self.api.url)
             devices_data = await self.api.get_devices()
+            _LOGGER.error("RAW DATA TYPE: %s", type(devices_data))
+            _LOGGER.error("RAW DATA KEYS: %s", devices_data.keys() if isinstance(devices_data, dict) else "None")
+            
             configured_devices: list[ConfiguredDevice] = devices_data.get(
                 "configured", []
             )
