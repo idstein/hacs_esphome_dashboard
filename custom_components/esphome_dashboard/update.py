@@ -208,6 +208,7 @@ class ESPHomeDashboardUpdateEntity(
         
         if self._device_name in self.coordinator.data:
             self._update_attrs(self.coordinator.data[self._device_name])
+        _LOGGER.error("DEBUG: %s availability check: in_data=%s is_online=%s", self._device_name, self._device_name in self.coordinator.data, self.is_online)
         else:
             self._attr_available = False
         super()._handle_coordinator_update()
