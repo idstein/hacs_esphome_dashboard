@@ -254,7 +254,10 @@ class ESPHomeDashboardUpdateEntity(
         """Check online status."""
         if not self._esphome_entry_data:
             self._esphome_entry_data = _find_esphome_entry_data(self.hass, self._device_name)
-        return self._esphome_entry_data.available if self._esphome_entry_data else False
+        
+        if self._esphome_entry_data:
+            return self._esphome_entry_data.available
+        return False
 
     @property
     def reinstall_useful(self) -> bool:
