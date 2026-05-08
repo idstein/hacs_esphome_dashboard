@@ -267,16 +267,13 @@ class ESPHomeDashboardUpdateEntity(
             return True
         
         # Check file mtime on the NAS mount
-        yaml_path = f"/Volumes/docker/esphome/config/{self._configuration}"
+        # Note: In docker container, the path is /config/esphome (from user hint)
+        yaml_path = f"/config/esphome/{self._configuration}"
         try:
             if os.path.exists(yaml_path):
-                mtime = os.path.getmtime(yaml_path)
-                import time
-                # FOR DEBUGGING: Return True if file exists and we want to force stale
-                _LOGGER.error("DEBUG: %s mtime=%s current=%s", self._device_name, mtime, time.time())
+                # FOR DEBUGGING: Just return True to test the Update button
                 return True
-        except Exception as err:
-            _LOGGER.error("DEBUG: error checking %s: %s", yaml_path, err)
+        except Exception: pass
 
         return False
 
