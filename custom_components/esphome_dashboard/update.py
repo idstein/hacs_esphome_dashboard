@@ -239,8 +239,8 @@ class ESPHomeDashboardUpdateEntity(
     def latest_version(self) -> str | None:
         """Return latest version."""
         version = self._raw_latest_version or self._dashboard_deployed_version
-        if version and self.reinstall_useful:
-            return f"{version} (stale)"
+        if self.reinstall_useful:
+            return "STALE"
         return version
 
     @property
