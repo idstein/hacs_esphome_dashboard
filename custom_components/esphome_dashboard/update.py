@@ -240,7 +240,7 @@ class ESPHomeDashboardUpdateEntity(
         """Return latest version."""
         version = self._raw_latest_version or self._dashboard_deployed_version
         if version and self.reinstall_useful:
-            return f"STALE_{version}"
+            return f"{version} (stale)"
         return version
 
     @property
@@ -260,8 +260,15 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def reinstall_useful(self) -> bool:
-        """Always True for testing."""
-        return True
+        """Force stale logic for debugging."""
+        # Check file on NAS (mapped to /config/esphome in the container)
+        try:
+            yaml_path = f"/config/esphome/{self._configuration}"
+            if os.path.exists(yaml_path):
+                return True
+        except Exception: pass
+        
+        return self._dashboard_status == "STALE"
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
