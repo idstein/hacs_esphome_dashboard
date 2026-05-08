@@ -209,9 +209,9 @@ class ESPHomeDashboardUpdateEntity(
         
         if self._device_name in self.coordinator.data:
             self._update_attrs(self.coordinator.data[self._device_name])
-        else:
-            self._attr_available = False
-        super()._handle_coordinator_update()
+        
+        # Trigger HA state update
+        self.async_write_ha_state()
 
     def _update_attrs(self, device_data: ConfiguredDevice) -> None:
         """Update attrs."""
@@ -245,8 +245,8 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def available(self) -> bool:
-        """Only available if in coordinator data."""
-        return self._device_name in self.coordinator.data
+        """Always available for debugging."""
+        return True
 
     @property
     def is_online(self) -> bool:
@@ -287,9 +287,6 @@ class ESPHomeDashboardUpdateEntity(
         if not self._address: raise HomeAssistantError("No address")
         api = self.coordinator.api
         if not await api.compile(self._configuration): raise HomeAssistantError("Compile failed")
-        if not self.is_online:
-            # We don't block install if offline for debugging
-            _LOGGER.warning("%s is offline, proceeding with compile.", self._device_name)
         if not await api.upload(self._configuration, self._address): raise HomeAssistantError("Upload failed")
         self._cached_device_version = None
         await self.coordinator.async_request_refresh()
