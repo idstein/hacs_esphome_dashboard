@@ -258,7 +258,7 @@ class ESPHomeDashboardUpdateEntity(
         
         if self._esphome_entry_data:
             return self._esphome_entry_data.available
-        return True # Default to True to see if it makes them show up
+        return False
 
     @property
     def reinstall_useful(self) -> bool:
@@ -270,7 +270,7 @@ class ESPHomeDashboardUpdateEntity(
         try:
             yaml_path = f"/config/esphome/{self._configuration}"
             if os.path.exists(yaml_path):
-                # FOR TESTING: Force stale if YAML exists
+                # FOR TESTING: ALWAYS RETURN TRUE IF FILE EXISTS
                 return True
         except Exception: pass
 
