@@ -271,12 +271,12 @@ class ESPHomeDashboardUpdateEntity(
         try:
             if os.path.exists(yaml_path):
                 mtime = os.path.getmtime(yaml_path)
-                # If file was modified in the last 7 days, assume it's newer than the build 
-                # (since builds are usually older) - this is a temporary investigative logic.
                 import time
-                if (time.time() - mtime) < (7 * 86400):
-                    return True
-        except Exception: pass
+                # FOR DEBUGGING: Return True if file exists and we want to force stale
+                _LOGGER.error("DEBUG: %s mtime=%s current=%s", self._device_name, mtime, time.time())
+                return True
+        except Exception as err:
+            _LOGGER.error("DEBUG: error checking %s: %s", yaml_path, err)
 
         return False
 
