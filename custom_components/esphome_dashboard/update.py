@@ -245,10 +245,8 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def available(self) -> bool:
-        """Only available if in coordinator data AND device is online."""
-        if self._device_name not in self.coordinator.data:
-            return False
-        return self.is_online
+        """Always available for debugging."""
+        return True
 
     @property
     def is_online(self) -> bool:
@@ -262,19 +260,8 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def reinstall_useful(self) -> bool:
-        """Return True if YAML changed or dashboard says STALE."""
-        if self._dashboard_status == "STALE":
-            return True
-        
-        # Check file on NAS (mapped to /config/esphome in the container)
-        try:
-            yaml_path = f"/config/esphome/{self._configuration}"
-            if os.path.exists(yaml_path):
-                # FOR TESTING: ALWAYS RETURN TRUE IF FILE EXISTS
-                return True
-        except Exception: pass
-
-        return False
+        """Return True for testing."""
+        return True
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
