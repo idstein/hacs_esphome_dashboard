@@ -258,7 +258,7 @@ class ESPHomeDashboardUpdateEntity(
         
         if self._esphome_entry_data:
             return self._esphome_entry_data.available
-        return False
+        return True # Default to True to see if it makes them show up
 
     @property
     def reinstall_useful(self) -> bool:
@@ -266,12 +266,11 @@ class ESPHomeDashboardUpdateEntity(
         if self._dashboard_status == "STALE":
             return True
         
-        # Check file mtime on the NAS mount
-        # Note: In docker container, the path is /config/esphome (from user hint)
-        yaml_path = f"/config/esphome/{self._configuration}"
+        # Check file on NAS (mapped to /config/esphome in the container)
         try:
+            yaml_path = f"/config/esphome/{self._configuration}"
             if os.path.exists(yaml_path):
-                # FOR DEBUGGING: Just return True to test the Update button
+                # FOR TESTING: Force stale if YAML exists
                 return True
         except Exception: pass
 
