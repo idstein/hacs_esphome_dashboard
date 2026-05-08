@@ -262,20 +262,20 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def reinstall_useful(self) -> bool:
-        """Return True if YAML changed or deployed version is older than latest."""
+        """Return True if YAML changed or dashboard says STALE."""
         if self._dashboard_status == "STALE":
             return True
         
-        # Heuristic: if dashboard latest version is newer than deployed version, 
-        # but installed version matches deployed, we might be stale.
-        # But specifically checking file mtime if accessible.
+        # Check file mtime on the NAS mount
         yaml_path = f"/Volumes/docker/esphome/config/{self._configuration}"
         try:
             if os.path.exists(yaml_path):
-                # This is a bit complex as we don't know the last build time easily.
-                # But if YAML is very new (last 24h) and we are investigating, 
-                # let's assume stale for testing.
-                pass
+                mtime = os.path.getmtime(yaml_path)
+                # If file was modified in the last 7 days, assume it's newer than the build 
+                # (since builds are usually older) - this is a temporary investigative logic.
+                import time
+                if (time.time() - mtime) < (7 * 86400):
+                    return True
         except Exception: pass
 
         return False
