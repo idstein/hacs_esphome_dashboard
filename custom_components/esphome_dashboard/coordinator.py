@@ -9,6 +9,7 @@ from esphome_dashboard_api import ConfiguredDevice, ESPHomeDashboardAPI
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+import json
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -51,6 +52,7 @@ class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevi
             _LOGGER.error("RECEIVED %d devices", len(configured_devices))
             _LOGGER.error("DEBUG: device names=%s", list(device["name"] for device in configured_devices))
             _LOGGER.error("DEBUG: device keys=%s", list(configured_devices[0].keys()) if configured_devices else "None")
+            _LOGGER.error("DEBUG: full json=%s", json.dumps(devices_data))
             _LOGGER.error("DEBUG: full device data 0=%s", configured_devices[0] if configured_devices else "None")
             _LOGGER.error("DEBUG: raw devices_data=%s", devices_data)
             # Return devices indexed by their name
