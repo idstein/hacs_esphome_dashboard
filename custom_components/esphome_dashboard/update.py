@@ -240,13 +240,13 @@ class ESPHomeDashboardUpdateEntity(
         """Return latest version."""
         version = self._raw_latest_version or self._dashboard_deployed_version
         if self.reinstall_useful:
-            return "STALE"
+            return f"{version} (stale)"
         return version
 
     @property
     def available(self) -> bool:
-        """Always available for debugging."""
-        return True
+        """Only available if in coordinator data."""
+        return self._device_name in self.coordinator.data
 
     @property
     def is_online(self) -> bool:
@@ -288,7 +288,8 @@ class ESPHomeDashboardUpdateEntity(
         api = self.coordinator.api
         if not await api.compile(self._configuration): raise HomeAssistantError("Compile failed")
         if not self.is_online:
-            raise ServiceValidationError(f"{self._device_name} is offline. Firmware compiled.")
+            # We don't block install if offline for debugging
+            _LOGGER.warning("%s is offline, proceeding with compile.", self._device_name)
         if not await api.upload(self._configuration, self._address): raise HomeAssistantError("Upload failed")
         self._cached_device_version = None
         await self.coordinator.async_request_refresh()
