@@ -39,21 +39,16 @@ class ESPHomeDashboardCoordinator(DataUpdateCoordinator[dict[str, ConfiguredDevi
     async def _async_update_data(self) -> dict[str, ConfiguredDevice]:
         """Fetch device data from the dashboard."""
         try:
-            _LOGGER.error("FETCHING DASHBOARD DATA from %s", self.api.url)
             devices_data = await self.api.get_devices()
-            _LOGGER.error("RAW DATA TYPE: %s", type(devices_data))
-            _LOGGER.error("RAW DATA KEYS: %s", devices_data.keys() if isinstance(devices_data, dict) else "None")
-            
             configured_devices: list[ConfiguredDevice] = devices_data.get(
                 "configured", []
             )
-
-            _LOGGER.error("RECEIVED %d devices", len(configured_devices))
-            _LOGGER.error("DEBUG: device names=%s", list(device["name"] for device in configured_devices))
+            return {device["name"]: device for device in configured_devices}
+        except aiohttp.ClientResponseError as err:
+            if err.status in (401, 403):
                 raise ConfigEntryAuthFailed(
                     "Authentication failed. Please update your credentials."
                 ) from err
             raise UpdateFailed(f"Error communicating with dashboard: {err}") from err
         except Exception as err:
-            _LOGGER.error("GENERAL ERROR: %s", err)
             raise UpdateFailed(f"Error communicating with dashboard: {err}") from err
