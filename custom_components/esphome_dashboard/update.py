@@ -245,8 +245,10 @@ class ESPHomeDashboardUpdateEntity(
 
     @property
     def available(self) -> bool:
-        """Always available for debugging."""
-        return True
+        """Only available if in coordinator data AND device is online."""
+        if self._device_name not in self.coordinator.data:
+            return False
+        return self.is_online
 
     @property
     def is_online(self) -> bool:
